@@ -17,6 +17,30 @@
     <relativePath/>
   </parent>
 
+  <modules>
+    <module>digger-common</module>
+    <module>digger-core</module>
+    <module>digger-config</module>
+    <module>digger-registry</module>
+    <module>digger-repository</module>
+    <module>digger-message</module>
+    <module>digger-cli</module>
+    <module>digger-cache</module>
+    <module>digger-security</module>
+    <module>digger-log</module>
+    <module>digger-job</module>
+    <module>digger-cogen</module>
+    <module>digger-fds</module>
+    <module>digger-gateway</module>
+    <module>digger-monitor</module>
+    <module>digger-upms</module>
+    <module>digger-pay</module>
+    <module>digger-weixin</module>
+    <module>digger-document</module>
+    <module>digger-admin</module>
+    <module>digger-demo</module>
+  </modules>
+
   <properties>
     <java.version>1.8</java.version>
     <kotlin.version>1.2.61</kotlin.version>
