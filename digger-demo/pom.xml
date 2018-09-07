@@ -11,5 +11,12 @@
 
   <artifactId>digger-demo</artifactId>
 
+  <dependencies>
+    <dependency>
+      <groupId>io.github.rcarlosdasilva</groupId>
+      <artifactId>digger-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
 </project>
