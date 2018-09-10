@@ -10,6 +10,41 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>digger-registry</artifactId>
+  <packaging>jar</packaging>
+  <name>Digger-Registry</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-netflix-eureka-server</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <finalName>${project.name}</finalName>
+          <mainClass>io.github.rcarlosdasilva.digger.registry.Bootstrap</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
