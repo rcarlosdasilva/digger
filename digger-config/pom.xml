@@ -11,7 +11,7 @@
 
   <artifactId>digger-config</artifactId>
   <packaging>jar</packaging>
-  <name>Digger-Config</name>
+  <name>digger-config</name>
 
   <dependencies>
     <dependency>

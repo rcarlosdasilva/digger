@@ -11,7 +11,7 @@
 
   <artifactId>digger-repository-spring-boot-starter</artifactId>
   <packaging>jar</packaging>
-  <name>Digger-Repository-Starter</name>
+  <name>digger-repository-starter</name>
 
   <dependencies>
     <dependency>

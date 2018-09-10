@@ -11,7 +11,7 @@
 
   <artifactId>digger-repository-mybatis</artifactId>
   <packaging>jar</packaging>
-  <name>Digger-Repository-Mybatis</name>
+  <name>digger-repository-mybatis</name>
 
   <dependencies>
     <dependency>

@@ -11,7 +11,7 @@
 
   <artifactId>digger-registry</artifactId>
   <packaging>jar</packaging>
-  <name>Digger-Registry</name>
+  <name>digger-registry</name>
 
   <dependencies>
     <dependency>

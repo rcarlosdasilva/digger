@@ -11,7 +11,7 @@
 
   <artifactId>digger-repository</artifactId>
   <packaging>pom</packaging>
-  <name>Digger-Repository</name>
+  <name>digger-repository</name>
 
   <modules>
     <module>digger-repository-mybatis</module>
