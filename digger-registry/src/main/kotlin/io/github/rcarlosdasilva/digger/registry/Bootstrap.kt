@@ -7,13 +7,8 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer
 
 @SpringBootApplication
 @EnableEurekaServer
-open class Bootstrap {
+open class Bootstrap
 
-  companion object {
-    @JvmStatic
-    fun main(args: Array<String>) {
-      runApplication<Bootstrap>(*args)
-    }
-  }
-
+fun main(args: Array<String>) {
+  runApplication<Bootstrap>(*args)
 }
