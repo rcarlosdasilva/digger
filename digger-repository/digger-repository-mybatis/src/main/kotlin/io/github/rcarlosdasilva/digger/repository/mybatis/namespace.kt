@@ -5,7 +5,7 @@ import org.apache.ibatis.session.ExecutorType
 import java.util.*
 
 enum class DBType {
-  MYSQL, ORACLE, SQL_SERVER, H2
+  MYSQL, ORACLE, SQL_SERVER
 }
 
 /**
