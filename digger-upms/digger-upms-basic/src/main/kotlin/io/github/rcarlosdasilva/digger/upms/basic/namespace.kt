@@ -66,6 +66,113 @@ enum class AccountType(
   MULTI_CONSUMER(12, "MCS")
 }
 
+/**
+ * 权限类型，大致分三种：菜单、功能、页面组件，功能可细分为三级：API、METHOD、CODE，如无需要，可指定通用类型，即无类型区分
+ *
+ * @param sn 序号，可用于存入数据库数字类型的字段
+ * @param code 编码，可用于存入数据库3位字符的字段
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+enum class PermissionType(
+    val sn: Int,
+    val code: String
+) {
+  /**
+   * 通用，如无需细分权限类型，可全部指定该类型
+   */
+  GENERAL(0, "GNR"),
+  /**
+   * 菜单权限
+   */
+  MENU(1, "MNU"),
+  /**
+   * 功能权限，可作为[API], [METHOD], [CODE]的统称涵盖
+   */
+  FEATURE(2, "FTU"),
+  /**
+   * 接口级权限，作为功能权限[FEATURE]的细分
+   */
+  API(3, "API"),
+  /**
+   * 方法级权限，作为功能权限[FEATURE]的细分
+   */
+  METHOD(4, "MTD"),
+  /**
+   * 代码级权限，作为功能权限[FEATURE]的细分
+   */
+  CODE(5, "COD"),
+  /**
+   * 页面组件权限，为前端使用权限
+   */
+  PAGE_COMPONENT(6, "PCP")
+}
+
+/**
+ * 特权类型
+ *
+ * @param sn 序号，可用于存入数据库数字类型的字段
+ * @param code 编码，可用于存入数据库3位字符的字段
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+enum class PrivilegeType(
+    val sn: Int,
+    val code: String
+) {
+  /**
+   * 附加额外权限
+   */
+  ADDITIONAL(0, "ADT"),
+  /**
+   * 削减已有权限
+   */
+  ABRIDGED(1, "ABD")
+}
+
+/**
+ * 性别
+ *
+ * @param sn 序号，可用于存入数据库数字类型的字段
+ * @param code 编码，可用于存入数据库3位字符的字段
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+enum class Sex(
+    val sn: Int,
+    val code: String
+) {
+  /**
+   * 未知、无可奉告
+   */
+  UNKNOWN(0, "UNW"),
+  /**
+   * 男
+   */
+  MALE(1, "MLE"),
+  /**
+   * 女
+   */
+  FEMALE(2, "FML"),
+  /**
+   * 不男不女
+   */
+  ANDROGYNOUS(3, "ADN"),
+  /**
+   * 伪娘
+   */
+  CROSS_DRESSER(4, "CDS"),
+  /**
+   * 人妖
+   */
+  LADY_BOY(5, "LDB")
+}
+
+
+/**
+ * 称呼
+ *
+ * @param sn 序号，可用于存入数据库数字类型的字段
+ * @param code 编码，可用于存入数据库3位字符的字段
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
 enum class PeopleCalled(
     val sn: Int,
     val code: String

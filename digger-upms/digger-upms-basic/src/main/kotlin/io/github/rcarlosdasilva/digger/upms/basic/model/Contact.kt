@@ -4,7 +4,7 @@ import io.github.rcarlosdasilva.digger.upms.basic.PeopleCalled
 import java.io.Serializable
 
 /**
- * 联系人信息表
+ * 联系人信息
  *
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
