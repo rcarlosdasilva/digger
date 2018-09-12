@@ -4,6 +4,9 @@ import com.alibaba.druid.pool.DruidDataSource
 import com.baomidou.mybatisplus.autoconfigure.SpringBootVFS
 import com.baomidou.mybatisplus.core.MybatisConfiguration
 import com.baomidou.mybatisplus.core.MybatisXMLLanguageDriver
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler
+import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
+import com.baomidou.mybatisplus.core.injector.ISqlInjector
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean
 import com.mchange.v2.c3p0.ComboPooledDataSource
@@ -16,9 +19,12 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.session.ExecutorType
 import org.apache.ibatis.session.SqlSessionFactory
 import org.mybatis.spring.SqlSessionTemplate
+import org.mybatis.spring.mapper.MapperFactoryBean
+import org.mybatis.spring.mapper.MapperScannerConfigurer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -38,18 +44,22 @@ import javax.sql.DataSource
  */
 @Configuration
 @ConditionalOnClass(value = [DataSource::class])
-@AutoConfigureBefore(value = [DataSourceAutoConfiguration::class])
 @EnableTransactionManagement
+@AutoConfigureBefore(value = [DataSourceAutoConfiguration::class])
 @EnableConfigurationProperties(value = [DataSourceProperties::class, DiggerRepositoryProperties::class])
 open class DiggerRepositoryAutoConfiguration @Autowired constructor(
     private val defaultResourceLoader: DefaultResourceLoader,
     private val dataSourceProperties: DataSourceProperties,
-    private val diggerRepositoryProperties: DiggerRepositoryProperties
+    private val diggerRepositoryProperties: DiggerRepositoryProperties,
+    @Autowired(required = false) private val metaObjectHandler: MetaObjectHandler? = null,
+    @Autowired(required = false) private val keyGenerator: IKeyGenerator? = null,
+    @Autowired(required = false) private val sqlInjector: ISqlInjector? = null
 ) {
 
   private val logger = KotlinLogging.logger {}
 
   @Bean
+  @ConditionalOnMissingBean
   open fun dataSource(): DataSource {
     val finalUrl = handleSpecial(dataSourceProperties.url)
 
@@ -68,6 +78,7 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
   }
 
   @Bean
+  @ConditionalOnMissingBean
   open fun sqlSessionFactory(dataSource: DataSource): SqlSessionFactory = if (diggerRepositoryProperties.framework == Framework.MYBATIS) {
     mybatisSessionFactory(dataSource)
   } else {
@@ -75,10 +86,24 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
   }
 
   @Bean
+  @ConditionalOnMissingBean
   open fun sqlSessionTemplate(sqlSessionFactory: SqlSessionFactory): SqlSessionTemplate =
       diggerRepositoryProperties.mybatis.executorType?.let {
         SqlSessionTemplate(sqlSessionFactory, it)
       } ?: SqlSessionTemplate(sqlSessionFactory)
+
+  @Bean
+  @ConditionalOnMissingBean
+  open fun mapperScannerConfigurer(): MapperScannerConfigurer =
+      MapperScannerConfigurer().apply {
+        diggerRepositoryProperties.mybatis.mapperInterfacePackages?.let {
+          setBasePackage(it.joinToString(","))
+        } ?: let{
+          logger.info { "[MYSQL] 将自动扫描默认Mapper接口包" }
+          // TODO
+        }
+        setSqlSessionFactoryBeanName("sqlSessionFactory")
+      }
 
   private fun mybatisSessionFactory(dataSource: DataSource): SqlSessionFactory =
       MybatisSqlSessionFactoryBean().let { factoryBean ->
@@ -92,12 +117,9 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
           }
           // MyBatis Mapper 所对应的 XML 文件位置
           mapperLocations?.let {
-            val resourceResolver = PathMatchingResourcePatternResolver()
-            factoryBean.setMapperLocations(it.flatMap { s ->
-              resourceResolver.getResources(s).toList()
-            }.toTypedArray())
+            factoryBean.setMapperLocations(resolveMapperLocations())
           } ?: let {
-            logger.info { "[MySQL] - 自动扫描路径\"resources/storage/mapper/xml\"下的所有Mapper XML文件" }
+            logger.info { "[MySQL] - 默认自动扫描路径\"resources/storage/mapper/xml\"下的所有Mapper XML文件" }
             factoryBean.setMapperLocations(PathMatchingResourcePatternResolver().getResources("classpath:/storage/mapper/xml/*Mapper.xml"))
           }
           // MyBaits Entity包扫描路径
@@ -131,7 +153,20 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
           factoryBean.setConfiguration(mc)
 
           // MyBatis-Plus 全局策略配置
-          factoryBean.setGlobalConfig(globalConfig)
+          factoryBean.setGlobalConfig(globalConfig.apply {
+            //注入填充器
+            metaObjectHandler?.let {
+              metaObjectHandler = it
+            }
+            //注入主键生成器
+            keyGenerator?.let {
+              dbConfig.keyGenerator = keyGenerator
+            }
+            //注入sql注入器
+            sqlInjector?.let {
+              sqlInjector = sqlInjector
+            }
+          })
 
           // 配置分页插件
           factoryBean.setPlugins(arrayOf<Interceptor>(PaginationInterceptor()))
