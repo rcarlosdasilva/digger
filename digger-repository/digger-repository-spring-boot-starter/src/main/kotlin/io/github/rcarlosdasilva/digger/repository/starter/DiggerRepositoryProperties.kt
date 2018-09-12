@@ -1,8 +1,8 @@
 package io.github.rcarlosdasilva.digger.repository.starter
 
+import com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties
 import io.github.rcarlosdasilva.digger.repository.mybatis.ConnectionPoolType
 import io.github.rcarlosdasilva.digger.repository.mybatis.DBType
-import io.github.rcarlosdasilva.digger.repository.mybatis.MybatisProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.util.*
 
@@ -29,7 +29,7 @@ class DiggerRepositoryProperties {
   /**
    * MyBatis (MyBatis Plus)配置
    */
-  val mybatis = MybatisProperties()
+  val mybatis = MybatisPlusProperties()
 
   /**
    * Druid 相关配置

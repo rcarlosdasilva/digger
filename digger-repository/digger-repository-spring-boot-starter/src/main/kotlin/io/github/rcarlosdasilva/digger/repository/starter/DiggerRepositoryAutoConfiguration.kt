@@ -1,13 +1,19 @@
 package io.github.rcarlosdasilva.digger.repository.starter
 
 import com.alibaba.druid.pool.DruidDataSource
+import com.baomidou.mybatisplus.autoconfigure.SpringBootVFS
+import com.baomidou.mybatisplus.core.MybatisConfiguration
+import com.baomidou.mybatisplus.core.MybatisXMLLanguageDriver
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import com.zaxxer.hikari.HikariDataSource
 import io.github.rcarlosdasilva.digger.repository.mybatis.ConnectionPoolType
 import mu.KotlinLogging
 import org.apache.commons.dbcp2.BasicDataSource
-import org.apache.ibatis.io.VFS
+import org.apache.ibatis.logging.slf4j.Slf4jImpl
+import org.apache.ibatis.plugin.Interceptor
+import org.apache.ibatis.session.ExecutorType
 import org.apache.ibatis.session.SqlSessionFactory
 import org.mybatis.spring.SqlSessionTemplate
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,12 +27,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
-import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.transaction.annotation.EnableTransactionManagement
-import java.io.IOException
-import java.net.URI
-import java.net.URL
 import javax.sql.DataSource
 
 /**
@@ -67,23 +69,80 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
 
   @Bean
   open fun sqlSessionFactory(dataSource: DataSource): SqlSessionFactory = if (diggerRepositoryProperties.framework == Framework.MYBATIS) {
-    mybatisSessionFactory()
+    mybatisSessionFactory(dataSource)
   } else {
-    hibernateSessionFactory()
+    hibernateSessionFactory(dataSource)
   }
 
   @Bean
   open fun sqlSessionTemplate(sqlSessionFactory: SqlSessionFactory): SqlSessionTemplate =
-      diggerRepositoryProperties.mybatis.executorType?.let { SqlSessionTemplate(sqlSessionFactory, it) }
-        ?: run { SqlSessionTemplate(sqlSessionFactory) }
+      diggerRepositoryProperties.mybatis.executorType?.let {
+        SqlSessionTemplate(sqlSessionFactory, it)
+      } ?: SqlSessionTemplate(sqlSessionFactory)
 
-  private fun mybatisSessionFactory(): SqlSessionFactory =
-      MybatisSqlSessionFactoryBean().run {
-        return this.`object`!!
+  private fun mybatisSessionFactory(dataSource: DataSource): SqlSessionFactory =
+      MybatisSqlSessionFactoryBean().let { factoryBean ->
+        factoryBean.setDataSource(dataSource)
+        factoryBean.vfs = SpringBootVFS::class.java
+
+        with(diggerRepositoryProperties.mybatis) {
+          // Mybatis XML配置文件位置
+          configLocation?.let {
+            factoryBean.setConfigLocation(defaultResourceLoader.getResource(it))
+          }
+          // MyBatis Mapper 所对应的 XML 文件位置
+          mapperLocations?.let {
+            val resourceResolver = PathMatchingResourcePatternResolver()
+            factoryBean.setMapperLocations(it.flatMap { s ->
+              resourceResolver.getResources(s).toList()
+            }.toTypedArray())
+          } ?: let {
+            logger.info { "[MySQL] - 自动扫描路径\"resources/storage/mapper/xml\"下的所有Mapper XML文件" }
+            factoryBean.setMapperLocations(PathMatchingResourcePatternResolver().getResources("classpath:/storage/mapper/xml/*Mapper.xml"))
+          }
+          // MyBaits Entity包扫描路径
+          typeAliasesPackage?.let {
+            factoryBean.setTypeAliasesPackage(it)
+          }
+          // MyBatis Entity父类
+          typeAliasesSuperType?.let {
+            factoryBean.setTypeAliasesSuperType(it)
+          }
+          if (typeAliasesPackage == null && typeAliasesSuperType == null) {
+            logger.warn { "[MySQL] - 未指定typeAliasesPackage或typeAliasesSuperType属性，将自动扫描继承自BasicEntity的所有Entity" }
+            factoryBean.setTypeAliasesSuperType(Any::class.java)
+          }
+          // TypeHandler 扫描路径
+          typeHandlersPackage?.let {
+            factoryBean.setTypeHandlersPackage(it)
+          }
+          // 枚举类 扫描路径
+          typeEnumsPackage?.let {
+            factoryBean.setTypeEnumsPackage(it)
+          }
+
+          // 原生 MyBatis 所支持的配置，如未提供，生成默认配置
+          val mc = this.configuration ?: MybatisConfiguration().apply {
+            setDefaultScriptingLanguage(MybatisXMLLanguageDriver::class.java)
+            // 默认使用SLF4J
+            logImpl = Slf4jImpl::class.java
+            defaultExecutorType = ExecutorType.REUSE
+          }
+          factoryBean.setConfiguration(mc)
+
+          // MyBatis-Plus 全局策略配置
+          factoryBean.setGlobalConfig(globalConfig)
+
+          // 配置分页插件
+          factoryBean.setPlugins(arrayOf<Interceptor>(PaginationInterceptor()))
+        }
+
+        logger.info { "[MySQL] - MyBatis 自动配置完毕" }
+        return factoryBean.`object`!!
       }
 
 
-  private fun hibernateSessionFactory(): SqlSessionFactory {
+  private fun hibernateSessionFactory(dataSource: DataSource): SqlSessionFactory {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -258,29 +317,6 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
     u.substring(0, markStartAt) + fragments.map { "${it.key}=${it.value}" }.joinToString("&")
   }
 
-
-  internal class SpringBootVFS : VFS() {
-
-    private val resourceResolver: ResourcePatternResolver
-
-    init {
-      resourceResolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
-    }
-
-    private fun preserveSubpackageName(uri: URI, rootPath: String): String {
-      val uriStr = uri.toString()
-      return uriStr.substring(uriStr.indexOf(rootPath))
-    }
-
-    override fun isValid() = true
-
-    @Throws(IOException::class)
-    override fun list(url: URL, path: String): List<String> {
-      val resources = resourceResolver.getResources("classpath*:$path/**/*.class")
-      return resources.map { preserveSubpackageName(it.uri, path) }
-    }
-  }
-
   companion object {
     val poolDrivers = mapOf(
         Pair(ConnectionPoolType.NONE, DriverManagerDataSource::class.java),
@@ -289,7 +325,6 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
         Pair(ConnectionPoolType.DBCP, BasicDataSource::class.java),
         Pair(ConnectionPoolType.HIKARI, HikariDataSource::class.java)
     )
-    const val CONNECTION_JDBC_URL_QUERY_MARK = '?'
   }
 
 }
