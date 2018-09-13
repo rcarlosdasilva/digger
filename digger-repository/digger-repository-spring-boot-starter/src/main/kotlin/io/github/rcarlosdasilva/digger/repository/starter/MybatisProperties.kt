@@ -1,4 +1,4 @@
-package io.github.rcarlosdasilva.digger.repository.mybatis
+package io.github.rcarlosdasilva.digger.repository.starter
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties
 

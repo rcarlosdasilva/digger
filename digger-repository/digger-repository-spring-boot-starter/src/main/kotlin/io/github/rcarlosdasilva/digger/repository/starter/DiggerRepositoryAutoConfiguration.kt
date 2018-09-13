@@ -11,9 +11,9 @@ import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import com.zaxxer.hikari.HikariDataSource
-import io.github.rcarlosdasilva.digger.repository.mybatis.ConnectionPoolType
 import mu.KotlinLogging
 import org.apache.commons.dbcp2.BasicDataSource
+import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.logging.slf4j.Slf4jImpl
 import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.session.ExecutorType
@@ -61,10 +61,8 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
   @Bean
   @ConditionalOnMissingBean
   open fun dataSource(): DataSource {
-    val finalUrl = handleSpecial(dataSourceProperties.url)
-
     val builder = DataSourceBuilder.create().apply {
-      this.url(finalUrl)
+      this.url(dataSourceProperties.url)
       this.driverClassName(dataSourceProperties.driverClassName!!)
       this.username(dataSourceProperties.username!!)
       this.password(dataSourceProperties.password!!)
@@ -99,8 +97,8 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
         diggerRepositoryProperties.mybatis.mapperInterfacePackages?.let {
           setBasePackage(it.joinToString(","))
         } ?: let{
-          logger.info { "[MYSQL] 将自动扫描默认Mapper接口包" }
-          // TODO
+          logger.info { "[MYSQL] 将默认自动扫描所有被Mapper注解的接口" }
+          setAnnotationClass(Mapper::class.java)
         }
         setSqlSessionFactoryBeanName("sqlSessionFactory")
       }
@@ -329,27 +327,6 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
       get("maxPoolPreparedStatementPerConnectionSize")?.let { datasource.maxPoolPreparedStatementPerConnectionSize = it as Int }
       get("filters")?.let { datasource.setFilters(it as String?) }
     }
-  }
-
-  /**
-   * 处理各种数据库的特殊连接字符串参数
-   */
-  private fun handleSpecial(url: String): String = url.let { u ->
-    val markStartAt = u.lastIndexOf('?') + 1
-    val hasParameters = markStartAt > 0
-    val fragments = if (hasParameters) {
-      val query = u.substring(markStartAt)
-      query.split("&").associate { param ->
-        param.split("=").run { Pair(this[0], this[1]) }
-      }.toMutableMap()
-    } else {
-      mutableMapOf()
-    }
-
-    // Mysql连接字符串参数 tinyInt1isBit设置为false(默认 true)，可以将bit和tinyint类型映射为boolean
-    fragments["tinyInt1isBit"] = (!diggerRepositoryProperties.tinyintToBoolean).toString()
-
-    u.substring(0, markStartAt) + fragments.map { "${it.key}=${it.value}" }.joinToString("&")
   }
 
   companion object {
