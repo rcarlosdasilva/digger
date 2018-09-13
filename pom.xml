@@ -49,6 +49,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <guava.version>26.0-jre</guava.version>
+    <mybatis-plus.version>3.0.1</mybatis-plus.version>
   </properties>
 
   <repositories>
@@ -80,6 +81,39 @@
         <version>Finchley.SR1</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <!-- about MyBatis -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>${mybatis-plus.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-core</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-extension</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-annotation</artifactId>
+        <version>${mybatis-plus.version}</version>
       </dependency>
 
       <!-- modules which is project depends closely -->

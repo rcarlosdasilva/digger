@@ -17,6 +17,7 @@
     <module>digger-upms-basic</module>
     <module>digger-upms-spring-boot-starter</module>
     <module>digger-upms-auth</module>
+    <module>digger-upms-demo</module>
   </modules>
 
 </project>

@@ -11,7 +11,6 @@ import java.util.*
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
 class Account : Serializable {
-
   /**
    * 账号的唯一资源标识码
    */
@@ -88,5 +87,4 @@ class Account : Serializable {
    * 账户正常有效
    */
   var isEffective = true
-
 }

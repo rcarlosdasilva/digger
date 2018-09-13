@@ -9,9 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>digger-upms-basic</artifactId>
-  <packaging>jar</packaging>
-  <name>digger-upms-basic</name>
+  <artifactId>digger-upms-demo</artifactId>
 
   <dependencies>
     <dependency>
@@ -20,8 +18,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.liquibase</groupId>
-      <artifactId>liquibase-core</artifactId>
+      <groupId>io.github.rcarlosdasilva</groupId>
+      <artifactId>digger-upms-basic</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

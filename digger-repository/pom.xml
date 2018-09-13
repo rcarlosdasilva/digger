@@ -14,7 +14,6 @@
   <name>digger-repository</name>
 
   <modules>
-    <module>digger-repository-mybatis</module>
     <module>digger-repository-spring-boot-starter</module>
   </modules>
 

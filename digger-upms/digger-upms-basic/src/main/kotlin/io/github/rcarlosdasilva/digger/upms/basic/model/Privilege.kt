@@ -25,9 +25,4 @@ class Privilege {
    * 特权过期时间，空代表不过期
    */
   var expiredAt: Date? = null
-
-  companion object {
-    const val serialVersionUID = 1L
-  }
-
 }

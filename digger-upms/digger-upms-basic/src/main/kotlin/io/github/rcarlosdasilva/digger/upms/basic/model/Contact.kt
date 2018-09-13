@@ -9,7 +9,6 @@ import java.io.Serializable
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
 class Contact : Serializable {
-
   /**
    * 姓名
    */
@@ -42,5 +41,4 @@ class Contact : Serializable {
    * 联系地址
    */
   var address: String? = null
-
 }
