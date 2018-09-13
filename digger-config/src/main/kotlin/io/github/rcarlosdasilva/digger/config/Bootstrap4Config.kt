@@ -7,8 +7,8 @@ import org.springframework.cloud.config.server.EnableConfigServer
 
 @SpringBootApplication
 @EnableConfigServer
-open class Bootstrap
+open class Bootstrap4Config
 
 fun main(args: Array<String>) {
-  runApplication<Bootstrap>(*args)
+  runApplication<Bootstrap4Config>(*args)
 }

@@ -6,7 +6,7 @@
 
   <groupId>io.github.rcarlosdasilva</groupId>
   <artifactId>digger</artifactId>
-  <version>0.1</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Digger - 脚手架</description>
 
@@ -80,6 +80,28 @@
         <version>Finchley.SR1</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <!-- modules which is project depends closely -->
+      <dependency>
+        <groupId>io.github.rcarlosdasilva</groupId>
+        <artifactId>digger-common</artifactId>
+        <version>0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.rcarlosdasilva</groupId>
+        <artifactId>digger-config</artifactId>
+        <version>0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.rcarlosdasilva</groupId>
+        <artifactId>digger-registry</artifactId>
+        <version>0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.rcarlosdasilva</groupId>
+        <artifactId>digger-repository-spring-boot-starter</artifactId>
+        <version>0.1-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
