@@ -17,7 +17,7 @@ import java.util.*
  *
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-abstract class BasicModel<E : Model<*>> : Model<E>() {
+abstract class BasicModel<M : BasicModel<M>> : Model<M>() {
 
   @JsonSerialize(using = ToStringSerializer::class)
   var id: Long? = null
@@ -37,7 +37,7 @@ abstract class BasicModel<E : Model<*>> : Model<E>() {
  *
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-abstract class SystemModel<E : Model<*>> : BasicModel<E>() {
+abstract class SystemModel<M : SystemModel<M>> : BasicModel<M>() {
 
   @TableField("is_disabled")
   var isDisabled = false
@@ -53,7 +53,7 @@ abstract class SystemModel<E : Model<*>> : BasicModel<E>() {
  *
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-abstract class BusinessModel<E : Model<*>> : SystemModel<E>() {
+abstract class BusinessModel<M : BusinessModel<M>> : SystemModel<M>() {
 
   @TableLogic
   @TableField(value = "is_deleted", strategy = FieldStrategy.IGNORED)
@@ -62,9 +62,5 @@ abstract class BusinessModel<E : Model<*>> : SystemModel<E>() {
   var createdBy: Long? = null
   @TableField(value = "created_at", fill = FieldFill.INSERT)
   var createdAt: Date? = null
-
-  companion object {
-    const val serialVersionUID = 5776344955989370955L
-  }
 
 }

@@ -19,7 +19,6 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.session.ExecutorType
 import org.apache.ibatis.session.SqlSessionFactory
 import org.mybatis.spring.SqlSessionTemplate
-import org.mybatis.spring.mapper.MapperFactoryBean
 import org.mybatis.spring.mapper.MapperScannerConfigurer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureBefore
@@ -57,6 +56,7 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
 ) {
 
   private val logger = KotlinLogging.logger {}
+  private val resourceResolver = PathMatchingResourcePatternResolver()
 
   @Bean
   @ConditionalOnMissingBean
@@ -96,7 +96,7 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
       MapperScannerConfigurer().apply {
         diggerRepositoryProperties.mybatis.mapperInterfacePackages?.let {
           setBasePackage(it.joinToString(","))
-        } ?: let{
+        } ?: let {
           logger.info { "[MYSQL] 将默认自动扫描所有被Mapper注解的接口" }
           setAnnotationClass(Mapper::class.java)
         }
@@ -115,20 +115,21 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
           }
           // MyBatis Mapper 所对应的 XML 文件位置
           mapperLocations?.let {
-            factoryBean.setMapperLocations(resolveMapperLocations())
+            val toList = it.flatMap { ml -> resourceResolver.getResources(ml).toList() }.toTypedArray()
+            factoryBean.setMapperLocations(toList)
           } ?: let {
             logger.info { "[MySQL] - 默认自动扫描路径\"resources/storage/mapper/xml\"下的所有Mapper XML文件" }
             factoryBean.setMapperLocations(PathMatchingResourcePatternResolver().getResources("classpath:/storage/mapper/xml/*Mapper.xml"))
           }
           // MyBaits Entity包扫描路径
-          typeAliasesPackage?.let {
-            factoryBean.setTypeAliasesPackage(it)
+          typeAliasesPackages?.let {
+            factoryBean.setTypeAliasesPackage(it.joinToString(","))
           }
           // MyBatis Entity父类
           typeAliasesSuperType?.let {
             factoryBean.setTypeAliasesSuperType(it)
           }
-          if (typeAliasesPackage == null && typeAliasesSuperType == null) {
+          if (typeAliasesPackages?.isEmpty() != false && typeAliasesSuperType == null) {
             logger.warn { "[MySQL] - 未指定typeAliasesPackage或typeAliasesSuperType属性，将自动扫描继承自BasicEntity的所有Entity" }
             factoryBean.setTypeAliasesSuperType(Any::class.java)
           }
@@ -141,8 +142,13 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
             factoryBean.setTypeEnumsPackage(it)
           }
 
+          // 扩展属性
+          configurationProperties?.let {
+            factoryBean.setConfigurationProperties(it)
+          }
+
           // 原生 MyBatis 所支持的配置，如未提供，生成默认配置
-          val mc = this.configuration ?: MybatisConfiguration().apply {
+          val mc = configuration ?: MybatisConfiguration().apply {
             setDefaultScriptingLanguage(MybatisXMLLanguageDriver::class.java)
             // 默认使用SLF4J
             logImpl = Slf4jImpl::class.java
@@ -151,7 +157,7 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
           factoryBean.setConfiguration(mc)
 
           // MyBatis-Plus 全局策略配置
-          factoryBean.setGlobalConfig(globalConfig.apply {
+          factoryBean.setGlobalConfig(mpConfig.apply {
             //注入填充器
             metaObjectHandler?.let {
               metaObjectHandler = it
