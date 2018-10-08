@@ -66,21 +66,21 @@ inline fun <T, E : DiggerException> T.throwIf(condition: Boolean, block: T.() ->
  * 为true时，抛出异常
  */
 inline fun <E : DiggerException> Boolean.throwIf(block: () -> E) {
-  if (this) block()
+  if (this) throw block()
 }
 
 /**
  * 表达式为false时，抛出异常
  */
 inline fun <T, E : DiggerException> T.throwUnless(condition: Boolean, block: T.() -> E) {
-  if (!condition) block()
+  if (!condition) throw block()
 }
 
 /**
  * 为false时，抛出异常
  */
 inline fun <E : DiggerException> Boolean.throwUnless(block: () -> E) {
-  if (!this) block()
+  if (!this) throw block()
 }
 
 /**
@@ -94,19 +94,19 @@ inline fun <T, E : DiggerRuntimeException> T.throwRuntimeIf(condition: Boolean, 
  * 为true时，抛出异常
  */
 inline fun <E : DiggerRuntimeException> Boolean.throwRuntimeIf(block: () -> E) {
-  if (this) block()
+  if (this) throw block()
 }
 
 /**
  * 表达式为false时，抛出异常
  */
 inline fun <T, E : DiggerRuntimeException> T.throwRuntimeUnless(condition: Boolean, block: T.() -> E) {
-  if (!condition) block()
+  if (!condition) throw block()
 }
 
 /**
  * 为false时，抛出异常
  */
 inline fun <E : DiggerRuntimeException> Boolean.throwRuntimeUnless(block: () -> E) {
-  if (!this) block()
+  if (!this) throw block()
 }

@@ -140,6 +140,11 @@ class StringHelperTest {
     Assertions.assertEquals("there_is_a_word", StringHelper.snakeCase("there_is_a_word  "));
     Assertions.assertEquals("there_is_a_word", StringHelper.snakeCase(" there-is-a-word "));
     Assertions.assertEquals("", StringHelper.snakeCase("   "));
+
+    Assertions.assertEquals("there-is-a-word", StringHelper.kebabCase("  there is a word"));
+    Assertions.assertEquals("there-is-a-word", StringHelper.kebabCase("there_is_a_word  "));
+    Assertions.assertEquals("there-is-a-word", StringHelper.kebabCase(" there-is-a-word "));
+    Assertions.assertEquals("", StringHelper.kebabCase("   "));
   }
 
   @Test
@@ -162,12 +167,65 @@ class StringHelperTest {
 
   @Test
   void testContains() {
-//    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cD", "001")));
-//    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD")));
-//    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), true, false));
-//
-//    Assertions.assertFalse(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "001")));
-    Assertions.assertFalse(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD"), false));
+    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cD", "001")));
+    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD")));
+    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), false, true));
+    Assertions.assertTrue(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "ef"), false, false));
+
+    Assertions.assertFalse(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "001")));
+    Assertions.assertFalse(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), true, true));
+    Assertions.assertFalse(StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD"), true, false));
+
+
+    Assertions.assertTrue(StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cD", "002")));
+    Assertions.assertTrue(StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cd", "002"), false));
+
+    Assertions.assertFalse(StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cdc", "002")));
+  }
+
+  @Test
+  void testInsertAndRemove() {
+    Assertions.assertEquals("xyz123456", StringHelper.insert("123456", 0, "xyz"));
+    Assertions.assertEquals("123xyz456", StringHelper.insert("123456", 3, "xyz"));
+    Assertions.assertEquals("123456xyz", StringHelper.insert("123456", 6, "xyz"));
+
+    Assertions.assertEquals("1234xyz56", StringHelper.insert("123456", -2, "xyz"));
+    Assertions.assertEquals("12xyz3456", StringHelper.insert("123456", -4, "xyz"));
+
+
+    Assertions.assertEquals("123456", StringHelper.remove("123xyz456", 3, 6));
+    Assertions.assertEquals("123xyz", StringHelper.remove("123xyz456", 6, 9));
+    Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.remove("123xyz456", 6, 10), "删除字符下标越界");
+    Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.remove("123xyz456", -1, 3), "删除字符下标越界");
+    Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.remove("123xyz456", 5, 4), "删除范围下标start不能大于end");
+
+    Assertions.assertEquals("xyz", StringHelper.remove("123xyz456", Lists.newArrayList("123", "456")));
+    Assertions.assertEquals("", StringHelper.remove("123xyz456", Lists.newArrayList("123", "456", "xyz")));
+    Assertions.assertEquals("_abc_123xyz456", StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), 1));
+    Assertions.assertEquals("123xyz456_abc_", StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), -1));
+    Assertions.assertEquals("123xyz456_abc_", StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "XYZ"), -1, false));
+  }
+
+  @Test
+  void testInsure() {
+    Assertions.assertEquals("abcxyz", StringHelper.insureStartsWith("xyz", "abc", true));
+    Assertions.assertEquals("abcABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", true));
+    Assertions.assertEquals("ABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", false));
+
+    Assertions.assertEquals("abcxyz", StringHelper.insureEndsWith("abc", "xyz", true));
+    Assertions.assertEquals("abcXYZxyz", StringHelper.insureEndsWith("abcXYZ", "xyz", true));
+    Assertions.assertEquals("abcXYZ", StringHelper.insureEndsWith("abcXYZ", "xyz", false));
+  }
+
+  @Test
+  void testBrief() {
+    Assertions.assertEquals("Install the plugi...", StringHelper.brief("Install the plugin; Restart Eclipse and go to Window", 20, "..."));
+    Assertions.assertEquals("默认逻辑是当表单验证失败时,把按钮...", StringHelper.brief("默认逻辑是当表单验证失败时,把按钮给变灰色", 20, "..."));
+  }
+
+  @Test
+  void testWrap() {
+    Assertions.assertEquals("abc[123]xyz[123]", StringHelper.wrap("abc123xyz123", "123", "[", "]"));
   }
 
 }

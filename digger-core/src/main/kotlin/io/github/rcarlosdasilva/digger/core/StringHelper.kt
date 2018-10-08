@@ -217,14 +217,16 @@ class StringHelper {
      * @return String 格式化后的字符串
      */
     @JvmStatic
-    fun format(pattern: String, arguments: List<Any>): String {
+    fun format(pattern: String, arguments: Iterable<Any>): String {
       var start = 0
       var cur: Int
       var ai = 0
       val buf = StringBuilder()
 
-      while (ai < arguments.size) {
-        val arg = arguments[ai]
+      val args = arguments.toList()
+
+      while (ai < args.size) {
+        val arg = args[ai]
         cur = pattern.indexOf(DELIMITER_STR, start)
 
         if (cur == -1) break
@@ -576,6 +578,28 @@ class StringHelper {
     }
 
     /**
+     * 转换成Kebab Case，以短横线间隔
+     * ```
+     * // return "there-is-a-word"
+     * StringHelper.kebabCase("  there is a word");
+     * // return "there-is-a-word"
+     * StringHelper.kebabCase("there_is_a_word  ");
+     * // return "there-is-a-word"
+     * StringHelper.kebabCase(" there-is-a-word ");
+     * // return ""
+     * StringHelper.kebabCase("   ");
+     * ```
+     * @param source String 字符串
+     * @return String 短横线命名
+     */
+    @JvmStatic
+    fun kebabCase(source: String): String = source.run {
+      simplify(this)
+          .split(Regex("[_\\- ]"))
+          .joinToString("-") { w -> w.toLowerCase() }
+    }
+
+    /**
      * 重复给定的字符串直到字符串达到或超过给定长度
      * ```
      * // return "00000"
@@ -635,39 +659,261 @@ class StringHelper {
       return if (tail) source + pad else pad + source
     }
 
+    /**
+     * 检查字符串中是否包含全部指定的子字符串
+     * ```
+     * // return true
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cD", "001"));
+     * // return true
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD"));
+     * // return true
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), false, true);
+     * // return true
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "ef"), false, false);
+     *
+     * // return false
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "001"));
+     * // return false
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), true, true);
+     * // return false
+     * StringHelper.haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD"), true, false);
+     * ```
+     * @param source String 字符串
+     * @param looking4 Collection<String> 预检查的子字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @param overlap Boolean 允许重叠，默认true。例如source="abc"，parts=["ab","bc"]，则overlap=true时，返回true（b字符重叠）。overlap=false时，返回false
+     * @return Boolean looking4中的字符串全部包含在source中
+     */
     @JvmStatic
     @JvmOverloads
-    fun haveAll(source: String, looking4: List<String>, overlap: Boolean = true, caseSensitive: Boolean = true): Boolean {
+    fun haveAll(source: String, looking4: Collection<String>, caseSensitive: Boolean = true, overlap: Boolean = true): Boolean {
       if (source.isEmpty() || looking4.isEmpty()) return true
+
       return if (overlap) {
-        looking4.all { s -> if (caseSensitive) source.contains(s) else source.contains(s, true) }
+        looking4.all { source.contains(it, !caseSensitive) }
       } else {
         var copy = source
-        looking4.all { s ->
-          val h = if (caseSensitive) copy.contains(s) else copy.contains(s, true)
-          System.out.println(s)
-          return h.applyIf {
-            copy = copy.replace(s, "")
-          }
+
+        for (s in looking4) {
+          val h = copy.contains(s, !caseSensitive)
+          if (!h) return false
+
+          copy = remove(copy, listOf(s), caseSensitive = caseSensitive)
         }
+        return true
       }
     }
 
+    /**
+     * 检查字符串中是否包含任意一个指定的子字符串
+     * ```
+     * // return true
+     * StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cD", "002"));
+     * // return true
+     * StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cd", "002"), false);
+     *
+     * // return false
+     * StringHelper.haveAny("abcDEF001", Lists.newArrayList("aba", "cdc", "002"));
+     * ```
+     * @param source String 字符串
+     * @param looking4 List<String> 预检查的子字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @return Boolean looking4中的字符串，最少有一个包含在source中
+     */
     @JvmStatic
     @JvmOverloads
-    fun haveAny(source: String, looking4: List<String>, overlap: Boolean = true, caseSensitive: Boolean = true): Boolean {
+    fun haveAny(source: String, looking4: List<String>, caseSensitive: Boolean = true): Boolean {
       if (looking4.isEmpty()) return true
-      return if (overlap) {
-        looking4.any { s -> if (caseSensitive) source.contains(s) else source.contains(s, true) }
+      return looking4.any { source.contains(it, !caseSensitive) }
+    }
+
+    /**
+     * 插入子字符串到指定下标位置
+     * ```
+     * // return "xyz123456"
+     * StringHelper.insert("123456", 0,"xyz");
+     * // return "123xyz456"
+     * StringHelper.insert("123456", 3,"xyz");
+     * // return "123456xyz"
+     * StringHelper.insert("123456", 6,"xyz");
+     *
+     * // return "1234xyz56"
+     * StringHelper.insert("123456", -2,"xyz");
+     * // return "12xyz3456"
+     * StringHelper.insert("123456", -4,"xyz");
+     * ```
+     * @param source String 字符串
+     * @param index Int 插入下标，为负数时，从字符串尾部定位
+     * @param part String 需插入字符串
+     * @return String 插入后的字符串
+     */
+    @JvmStatic
+    fun insert(source: String, index: Int, part: String): String {
+      if (part.isEmpty()) return source
+      (Math.abs(index) > source.length).throwRuntimeIf { DiggerStringException("插入字符串下标越界：[size={}, index={}]", source.length, index) }
+
+      val i = if (index < 0) source.length + index else index
+
+      val cs = source.toCharArray()
+      val cp = part.toCharArray()
+      val cr = CharArray(source.length + part.length)
+
+      System.arraycopy(cs, 0, cr, 0, i)
+      System.arraycopy(cp, 0, cr, i, part.length)
+      System.arraycopy(cs, i, cr, i + part.length, source.length - i)
+
+      return String(cr)
+    }
+
+    /**
+     * 删除指定开始和结束下标范围的字符
+     * ```
+     * //return "123456"
+     * StringHelper.remove("123xyz456", 3, 6);
+     * //return "123xyz"
+     * StringHelper.remove("123xyz456", 6, 9);
+     * ```
+     * @param source String 字符串
+     * @param start Int 开始删除字符的下标
+     * @param end Int 结束删除字符的下标
+     * @return String 删除指定字符后的字符串
+     */
+    @JvmStatic
+    fun remove(source: String, start: Int, end: Int): String {
+      if (source.isEmpty() || start == end) return source
+      (start < 0 || end > source.length).throwRuntimeIf { DiggerStringException("删除字符下标越界：[size={}, start={}, end={}]", source.length, start, end) }
+      (start > end).throwRuntimeIf { DiggerStringException("删除范围下标start不能大于end") }
+
+      return source.removeRange(start, end)
+    }
+
+    /**
+     * 删除字符串中出现的指定子字符串，可指定删除次数
+     * ```
+     * // return "xyz"
+     * StringHelper.remove("123xyz456", Lists.newArrayList("123", "456"));
+     * // return ""
+     * StringHelper.remove("123xyz456", Lists.newArrayList("123", "456", "xyz"));
+     * // return "_abc_123xyz456"
+     * StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), 1);
+     * // return "123xyz456_abc_"
+     * StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), -1);
+     * // return "123xyz456_abc_"
+     * StringHelper.remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "XYZ"), -1, false);
+     * ```
+     * @param source String 字符串
+     * @param parts Collection<String> 需要从字符串中删除的子字符串
+     * @param counts Int 删除次数，默认0。 0 删除全部。 大于0(N) 从下标0开始，查找N次出现的子字符串并删除，如果N大于字符串中实际出现的次数，效果等于0。 小于0 与大于0作用相同，但从字符串的尾部开始查找删除
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @return String 删除后的字符串
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun remove(source: String, parts: Collection<String>, counts: Int = 0, caseSensitive: Boolean = true): String {
+      if (source.isEmpty() || parts.isEmpty()) return source
+
+      var copy = source
+      if (counts == 0) {
+        parts.forEach { copy = copy.replace(it, "", !caseSensitive) }
       } else {
-        var copy = source
-        looking4.any { s ->
-          val h = if (caseSensitive) copy.contains(s) else copy.contains(s, true)
-          return h.applyIf {
-            copy = copy.replace(s, "")
+        val forward = counts < 0
+
+        for (i in 0 until Math.abs(counts)) {
+          parts.forEach {
+            val ind = if (forward)
+              copy.lastIndexOf(it, ignoreCase = !caseSensitive)
+            else
+              copy.indexOf(it, ignoreCase = !caseSensitive)
+            if (ind >= 0) {
+              copy = remove(copy, ind, ind + it.length)
+            }
           }
         }
       }
+      return copy
+    }
+
+    /**
+     * 确保字符串以给定的前缀开始
+     * ```
+     * // return "abcxyz"
+     * StringHelper.insureStartsWith("xyz", "abc", true);
+     * // return "abcABCxyz"
+     * StringHelper.insureStartsWith("ABCxyz", "abc", true);
+     * // return "ABCxyz"
+     * StringHelper.insureStartsWith("ABCxyz", "abc", false);
+     * ```
+     * @param source String 字符串
+     * @param prefix String 前缀
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @return String 带有指定前缀的字符串
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun insureStartsWith(source: String, prefix: String, caseSensitive: Boolean = true): String =
+        if (source.startsWith(prefix, !caseSensitive))
+          source
+        else prefix + source
+
+    /**
+     * 确保字符串以给定的后缀结束
+     * ```
+     * // return "abcxyz"
+     * StringHelper.insureEndsWith("abc", "xyz", true);
+     * // return "abcXYZxyz"
+     * StringHelper.insureEndsWith("abcXYZ", "xyz", true);
+     * // return "abcXYZ"
+     * StringHelper.insureEndsWith("abcXYZ", "xyz", false);
+     * ```
+     * @param source String 字符串
+     * @param suffix String 后缀
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @return String 带有指定后缀的字符串
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun insureEndsWith(source: String, suffix: String, caseSensitive: Boolean = true): String =
+        if (source.endsWith(suffix, !caseSensitive))
+          source
+        else
+          source + suffix
+
+    /**
+     * 获取字符串指定长度的缩略，尾部跟填充物
+     * ```
+     * // return "Install the plugi...";
+     * TextHelper.brief("Install the plugin; Restart Eclipse and go to Window", 20, "...");
+     * // return "默认逻辑是当表单验证失败时,把按钮...";
+     * TextHelper.brief("默认逻辑是当表单验证失败时,把按钮给变灰色", 20, "...");
+     * ```
+     * @param source String 字符串
+     * @param length Int 处理后字符串长度
+     * @param filler String 填充物
+     */
+    @JvmStatic
+    fun brief(source: String, length: Int, filler: String): String =
+        if (filler.isEmpty())
+          source.substring(0, length)
+        else
+          source.substring(0, length - filler.length) + filler
+
+    /**
+     * 使用给定的前缀与后缀包裹指定的子字符串
+     * ```
+     * // return "abc[123]xyz[123]"
+     * StringHelper.wrap("abc123xyz123", "123", "[", "]");
+     * ```
+     * @param source String 字符串
+     * @param looking4 String 需要处理的子字符串
+     * @param prefix String 前缀
+     * @param suffix String 后缀
+     * @return String 处理后的字符串
+     */
+    @JvmStatic
+    fun wrap(source: String, looking4: String, prefix: String, suffix: String): String {
+      if (source.isEmpty()) return ""
+
+      return source.replace(looking4, concat(prefix, looking4, suffix))
     }
 
   }
