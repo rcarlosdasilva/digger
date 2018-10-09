@@ -103,6 +103,8 @@ class StringHelperTest {
   void testRandom() {
     Assertions.assertNotNull(StringHelper.random(10));
     Assertions.assertEquals(10, StringHelper.random(10, StringHelper.NUMBERS).length());
+    Assertions.assertFalse(StringHelper.random(10, StringHelper.LETTERS).contains("0"));
+    Assertions.assertFalse(StringHelper.random(10, StringHelper.NUMBERS_WITHOUT_ZERO).contains("0"));
   }
 
   @Test
@@ -207,7 +209,25 @@ class StringHelperTest {
   }
 
   @Test
-  void testInsure() {
+  void testStartsAndEndsWith() {
+    Assertions.assertTrue(StringHelper.startsWith("123xyz456", "789", "456", "123"));
+    Assertions.assertFalse(StringHelper.startsWith("123xyz456", "abc", "xyz"));
+    Assertions.assertTrue(StringHelper.startsWith("abc123xyz", false, "123", "ABC"));
+
+    Assertions.assertTrue(StringHelper.endsWith("123xyz456", "789", "456", "123"));
+    Assertions.assertFalse(StringHelper.endsWith("123xyz456", "abc", "xyz"));
+    Assertions.assertTrue(StringHelper.endsWith("abc123xyz", false, "123", "XYZ"));
+
+    Assertions.assertTrue(StringHelper.startsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
+    Assertions.assertFalse(StringHelper.startsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
+    Assertions.assertTrue(StringHelper.startsWith("abc123xyz", false, Lists.newArrayList("123", "ABC")));
+
+    Assertions.assertTrue(StringHelper.endsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
+    Assertions.assertFalse(StringHelper.endsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
+    Assertions.assertTrue(StringHelper.endsWith("abc123xyz", false, Lists.newArrayList("123", "XYZ")));
+
+    // ====================================================================================
+
     Assertions.assertEquals("abcxyz", StringHelper.insureStartsWith("xyz", "abc", true));
     Assertions.assertEquals("abcABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", true));
     Assertions.assertEquals("ABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", false));

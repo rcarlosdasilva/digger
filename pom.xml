@@ -50,6 +50,8 @@
 
     <guava.version>26.0-jre</guava.version>
     <mybatis-plus.version>3.0.1</mybatis-plus.version>
+
+    <kotlin-logging.version>1.4.9</kotlin-logging.version>
   </properties>
 
   <repositories>

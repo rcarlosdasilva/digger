@@ -3,10 +3,28 @@ package io.github.rcarlosdasilva.digger.core
 import com.google.common.base.Ascii
 import java.util.*
 
+/**
+ * String Helper
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+class StringHelper private constructor() {
 
-class StringHelper {
+  private fun formatArg(buf: StringBuilder, o: Any?) {
+    if (o == null) {
+      buf.append("[null]")
+      return
+    }
+
+    try {
+      val oAsString = o.toString()
+      buf.append(oAsString)
+    } catch (t: Throwable) {
+      buf.append("[failed ${o.javaClass.name}.toString()]")
+    }
+  }
 
   companion object {
+    private val INTERNAL = StringHelper()
     private val RANDOM = Random()
 
     private const val DELIMITER_START = '{'
@@ -240,7 +258,7 @@ class StringHelper {
           val c = at(pattern, cur - 2)
           start = if (c[0] == ESCAPE_CHAR) {
             buf.append(pattern, start, cur - 1)
-            formatArg(buf, arg)
+            INTERNAL.formatArg(buf, arg)
             cur + 2
           } else {
             ai--
@@ -250,7 +268,7 @@ class StringHelper {
           }
         } else {
           buf.append(pattern, start, cur)
-          formatArg(buf, arg)
+          INTERNAL.formatArg(buf, arg)
           start = cur + 2
         }
 
@@ -834,6 +852,82 @@ class StringHelper {
     }
 
     /**
+     * 字符串是否以指定的任意一个子字符串开头
+     * ```
+     * // return true
+     * StringHelper.startsWith("123xyz456", Lists.newArrayList("789", "456", "123"));
+     * // return false
+     * StringHelper.startsWith("123xyz456", Lists.newArrayList("abc", "xyz"));
+     * // return true
+     * StringHelper.startsWith("abc123xyz", false, Lists.newArrayList("123", "ABC"));
+     * ```
+     * @param source String 字符串
+     * @param prefixes Iterable<String> 子字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @return Boolean 是否有一个子字符串是source的前缀
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun startsWith(source: String, caseSensitive: Boolean = true, prefixes: Iterable<String>) = prefixes.any { source.startsWith(it, !caseSensitive) }
+
+    /**
+     * 字符串是否以指定的任意一个子字符串开头
+     * ```
+     * // return true
+     * StringHelper.startsWith("123xyz456", "789", "456", "123");
+     * // return false
+     * StringHelper.startsWith("123xyz456", "abc", "xyz");
+     * // return true
+     * StringHelper.startsWith("abc123xyz", false, "123", "ABC");
+     * ```
+     * @param source String 字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @param prefixes Array<out String> 子字符串
+     * @return Boolean 是否有一个子字符串是source的前缀
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun startsWith(source: String, caseSensitive: Boolean = true, vararg prefixes: String) = startsWith(source, caseSensitive, prefixes.toList())
+
+    /**
+     * 字符串是否以指定的任意一个子字符串结尾
+     * ```
+     * // return true
+     * StringHelper.endsWith("123xyz456", Lists.newArrayList("789", "456", "123"));
+     * // return false
+     * StringHelper.endsWith("123xyz456", Lists.newArrayList("abc", "xyz"));
+     * // return true
+     * StringHelper.endsWith("abc123xyz", false, Lists.newArrayList("123", "XYZ"));
+     * ```
+     * @param source String 字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @param prefixes Iterable<String> 子字符串
+     * @return Boolean 是否有一个子字符串是source的后缀
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun endsWith(source: String, caseSensitive: Boolean = true, prefixes: Iterable<String>) = prefixes.any { source.endsWith(it, !caseSensitive) }
+
+    /**
+     * 字符串是否以指定的任意一个子字符串结尾
+     * ```
+     * // return true
+     * StringHelper.endsWith("123xyz456", "789", "456", "123");
+     * // return false
+     * StringHelper.endsWith("123xyz456", "abc", "xyz");
+     * // return true
+     * StringHelper.endsWith("abc123xyz", false, "123", "XYZ");
+     * ```
+     * @param source String 字符串
+     * @param caseSensitive Boolean 区分大小写，默认true
+     * @param prefixes Array<out String> 子字符串
+     * @return Boolean 是否有一个子字符串是source的后缀
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun endsWith(source: String, caseSensitive: Boolean = true, vararg prefixes: String) = endsWith(source, caseSensitive, prefixes.toList())
+
+    /**
      * 确保字符串以给定的前缀开始
      * ```
      * // return "abcxyz"
@@ -916,19 +1010,5 @@ class StringHelper {
       return source.replace(looking4, concat(prefix, looking4, suffix))
     }
 
-  }
-}
-
-private fun formatArg(buf: StringBuilder, o: Any?) {
-  if (o == null) {
-    buf.append("[null]")
-    return
-  }
-
-  try {
-    val oAsString = o.toString()
-    buf.append(oAsString)
-  } catch (t: Throwable) {
-    buf.append("[failed ${o.javaClass.name}.toString()]")
   }
 }

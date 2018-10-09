@@ -2,7 +2,11 @@ package io.github.rcarlosdasilva.digger.core
 
 import java.util.*
 
-class CollectionHelper {
+/**
+ * Collection Helper
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+class CollectionHelper private constructor() {
 
   companion object {
     /**
