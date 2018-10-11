@@ -5,13 +5,12 @@ import io.github.rcarlosdasilva.digger.core.throwRuntimeIf
 import mu.KotlinLogging
 
 /**
- * 获取基于Snowflake算法的ID
- *
- * > 参考 http://git.oschina.net/yu120/sequence , kotlin重写
+ * 获取基于**Snowflake**算法的ID
+ * ( *参考 http://git.oschina.net/yu120/sequence , kotlin重写，感谢* )
  *
  * > 基于Twitter的Snowflake算法实现分布式高效有序ID生产黑科技(sequence)。 SnowFlake的结构如下(每部分用-分开):
  *
- * > ***0-0000000000 0000000000 0000000000 0000000000 0-00000-00000-000000000000***
+ * > **0-0000000000 0000000000 0000000000 0000000000 0-00000-00000-000000000000**
  *
  *  1. 1位标识，由于long基本类型在Java中是带符号的，最高位是符号位，正数是0，负数是1，所以id一般是正数，最高位是0
  *  2. 41位时间截(毫秒级)，注意，41位时间截不是存储当前时间的时间截，而是存储时间截的差值（当前时间截 - 开始时间截) 得到的值，
@@ -47,7 +46,7 @@ class Snowflake constructor(private val dataCenterId: Int,
     (dataCenterId !in 0..MAX_DATA_CENTER_ID).throwRuntimeIf { DiggerCoreRuntimeException("[ID] - DataCenterId的取值超出了范围，默认0 - 31") }
     (workerId !in 0..MAX_WORKER_ID).throwRuntimeIf { DiggerCoreRuntimeException("[ID] - WorkerId的取值超出了范围，默认0 - 31") }
 
-    logger.info { "[ID] - ID序列化参数：WorkerId: ${this.workerId}, DataCenterId: ${this.dataCenterId}" }
+    logger.info { "[ID] - ID序列化参数：DataCenterId: ${this.dataCenterId}, WorkerId: ${this.workerId}" }
   }
 
   /**

@@ -1,11 +1,11 @@
-package io.github.rcarlosdasilva.digger.core.misc
+package io.github.rcarlosdasilva.digger.core
 
-import java.io.Serializable
+import io.github.rcarlosdasilva.digger.core.misc.Pair
 
-data class Pair<out K, out V>(
-    val key: K,
-    val value: V) : Serializable
-
+/**
+ * Pair Helper
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
 class PairHelper private constructor() {
 
   @Suppress("UselessCallOnCollection")

@@ -161,7 +161,6 @@ class StringHelperTest {
     Assertions.assertEquals("01201", StringHelper.repeatUntil("012", 5));
 
     String sentence = "binary Numbers look like ";
-    System.out.println(sentence.length());
     Assertions.assertEquals(sentence + "...", StringHelper.fill(sentence, ".", -28));
     Assertions.assertEquals(sentence + "01010", StringHelper.fill(sentence, "01", -30));
     Assertions.assertEquals("!@#!@#!" + sentence, StringHelper.fill(sentence, "!@#", 32));

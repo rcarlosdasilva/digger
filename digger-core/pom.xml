@@ -22,6 +22,12 @@
       <artifactId>kotlin-logging</artifactId>
       <version>${kotlin-logging.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

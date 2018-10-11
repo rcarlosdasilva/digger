@@ -8,7 +8,7 @@ class SystemClockTest {
   @Test
   void test() throws InterruptedException {
     long now = SystemClock.INSTANCE.now();
-    Thread.sleep(10);
+    Thread.sleep(100);
     long after = SystemClock.INSTANCE.now();
 
     Assertions.assertTrue(after > now);

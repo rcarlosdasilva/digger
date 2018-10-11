@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 
 class SnowflakeTest {
 
-   @Test
+  @Test
   void test() {
-     Snowflake sf = new Snowflake(1, 5);
-     Long id = sf.id();
+    Snowflake sf = new Snowflake(1, 5);
+    Long id = sf.id();
 
-     System.out.println(id);
-     Assertions.assertNotNull(id);
-   }
+    Assertions.assertNotNull(id);
+  }
 }
