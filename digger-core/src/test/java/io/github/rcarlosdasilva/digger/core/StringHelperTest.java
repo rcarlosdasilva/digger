@@ -100,14 +100,6 @@ class StringHelperTest {
   }
 
   @Test
-  void testRandom() {
-    Assertions.assertNotNull(StringHelper.random(10));
-    Assertions.assertEquals(10, StringHelper.random(10, StringHelper.NUMBERS).length());
-    Assertions.assertFalse(StringHelper.random(10, StringHelper.LETTERS).contains("0"));
-    Assertions.assertFalse(StringHelper.random(10, StringHelper.NUMBERS_WITHOUT_ZERO).contains("0"));
-  }
-
-  @Test
   void testBetween() {
     Assertions.assertIterableEquals(Lists.newArrayList("abc", "def"), StringHelper.between("[abc] xyz [def]", "[", "]"));
   }
@@ -245,6 +237,12 @@ class StringHelperTest {
   @Test
   void testWrap() {
     Assertions.assertEquals("abc[123]xyz[123]", StringHelper.wrap("abc123xyz123", "123", "[", "]"));
+  }
+
+  @Test
+  void testReverse() {
+    Assertions.assertEquals("321", StringHelper.reverse("123"));
+    Assertions.assertEquals("zyx_cba", StringHelper.reverse("abc_xyz"));
   }
 
 }
