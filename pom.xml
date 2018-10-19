@@ -49,6 +49,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <guava.version>26.0-jre</guava.version>
+    <freemarker.version>2.3.28</freemarker.version>
+    <mysql.version>5.1.38</mysql.version>
     <mybatis-plus.version>3.0.1</mybatis-plus.version>
 
     <kotlin-logging.version>1.4.9</kotlin-logging.version>
@@ -116,6 +118,13 @@
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus-annotation</artifactId>
         <version>${mybatis-plus.version}</version>
+      </dependency>
+
+      <!-- about utils -->
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
       </dependency>
 
       <!-- modules which is project depends closely -->
@@ -242,7 +251,9 @@
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
               </sourceDirs>
               <annotationProcessors>
-                <annotationProcessor>org.springframework.boot.configurationprocessor.ConfigurationMetadataAnnotationProcessor</annotationProcessor>
+                <annotationProcessor>
+                  org.springframework.boot.configurationprocessor.ConfigurationMetadataAnnotationProcessor
+                </annotationProcessor>
               </annotationProcessors>
             </configuration>
           </execution>
