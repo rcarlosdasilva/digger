@@ -110,3 +110,30 @@ enum class MySqlType {
   ENUM,
   SET
 }
+
+enum class MsSqlType {
+
+}
+
+enum class OracleType {
+
+}
+
+class DbTypeWrapper(val supportDb: SupportDb) {
+  constructor(supportDb: SupportDb, mySqlType: MySqlType) : this(supportDb) {
+    this.mySqlType = mySqlType
+  }
+
+  constructor(supportDb: SupportDb, msSqlType: MsSqlType) : this(supportDb) {
+    this.msSqlType = msSqlType
+  }
+
+  constructor(supportDb: SupportDb, oracleType: OracleType) : this(supportDb) {
+    this.oracleType = oracleType
+  }
+
+  var mySqlType: MySqlType? = null
+  var msSqlType: MsSqlType? = null
+  var oracleType: OracleType? = null
+  var length = 0
+}

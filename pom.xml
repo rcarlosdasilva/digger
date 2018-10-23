@@ -122,6 +122,11 @@
 
       <!-- about utils -->
       <dependency>
+        <groupId>io.github.microutils</groupId>
+        <artifactId>kotlin-logging</artifactId>
+        <version>${kotlin-logging.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.freemarker</groupId>
         <artifactId>freemarker</artifactId>
         <version>${freemarker.version}</version>

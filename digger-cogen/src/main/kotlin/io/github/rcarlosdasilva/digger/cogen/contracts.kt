@@ -4,7 +4,11 @@ package io.github.rcarlosdasilva.digger.cogen
  * 支持的数据库
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-enum class SupportDb { MYSQL, MSSQL, ORACLE }
+enum class SupportDb(val driver: String, val sql: Sql) {
+  MYSQL("com.mysql.jdbc.Driver", MySql),
+  MSSQL("", MsSql),
+  ORACLE("", Oracle)
+}
 
 /**
  * 命名风格
@@ -33,6 +37,6 @@ enum class NameStyle {
  * 支持的生成代码语言
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-enum class Language {
-  JAVA, KOTLIN
+enum class Language(val extension: String) {
+  JAVA(".java"), KOTLIN(".kt"), XML(".xml")
 }

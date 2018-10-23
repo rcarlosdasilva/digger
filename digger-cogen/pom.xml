@@ -13,12 +13,21 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.github.rcarlosdasilva</groupId>
+      <artifactId>digger-core</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging</artifactId>
     </dependency>
 
     <dependency>
