@@ -2,8 +2,8 @@ package io.github.rcarlosdasilva.digger.cogen.core
 
 import io.github.rcarlosdasilva.digger.cogen.DiggerCogenRuntimeException
 import io.github.rcarlosdasilva.digger.cogen.core.handler.*
+import io.github.rcarlosdasilva.digger.cogen.info.DatabaseInfo
 import io.github.rcarlosdasilva.digger.cogen.info.PackageInfo
-import io.github.rcarlosdasilva.digger.cogen.info.TableInfo
 import mu.KotlinLogging
 
 /**
@@ -17,8 +17,7 @@ object Cogen {
   fun build(configuration: Configuration) = CogenRunner(CogenRuntimeHolder(configuration))
 
   data class CogenRuntimeHolder internal constructor(val configuration: Configuration) {
-    lateinit var allTables: List<TableInfo>
-    lateinit var filteredTables: List<TableInfo>
+    lateinit var database: DatabaseInfo
     lateinit var packages: List<PackageInfo>
   }
 
@@ -30,7 +29,9 @@ object Cogen {
     fun run() {
       logger.info("============== Cogen Begin ==============")
       try {
-        handlers.forEach { handler -> handler.handle(holder) }
+        handlers.forEach {
+          it.handle(holder)
+        }
       } catch (ex: DiggerCogenRuntimeException) {
         logger.error("", ex)
       }
@@ -42,7 +43,7 @@ object Cogen {
         listOf(
             PrepareHandler(),
             DatabaseHandler(),
-            FileHandler(),
+            FolderHandler(),
             FilterHandler(),
             CodeHandler(),
             OutputHandler(),

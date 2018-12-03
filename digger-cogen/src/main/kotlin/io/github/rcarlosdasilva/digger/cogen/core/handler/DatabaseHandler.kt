@@ -5,6 +5,7 @@ import io.github.rcarlosdasilva.digger.cogen.Sql
 import io.github.rcarlosdasilva.digger.cogen.core.Cogen
 import io.github.rcarlosdasilva.digger.cogen.info.ColumnInfo
 import io.github.rcarlosdasilva.digger.cogen.info.TableInfo
+import jdk.nashorn.internal.objects.NativeArray.forEach
 import mu.KotlinLogging
 import java.sql.Connection
 import java.sql.DriverManager
@@ -26,7 +27,6 @@ class DatabaseHandler : CogenHandler {
 
   private fun readTable(holder: Cogen.CogenRuntimeHolder, conn: Connection, sql: Sql) {
     conn.prepareStatement(sql.tableComments()).use { ps ->
-      val tables = mutableListOf<TableInfo>()
       ps.executeQuery().use { results ->
         while (results.next()) {
           val name = results.getString(sql.tableName())
@@ -35,16 +35,15 @@ class DatabaseHandler : CogenHandler {
           val ti = TableInfo(name)
           ti.comment = comment
 
-          tables.add(ti)
+          holder.database.allTables.add(ti)
         }
       }
-      holder.allTables = tables
     }
   }
 
   private fun readColumn(holder: Cogen.CogenRuntimeHolder, conn: Connection, sql: Sql) {
     val database = holder.configuration.database!!
-    holder.allTables.forEach { table ->
+    holder.database.allTables.forEach { table ->
       conn.prepareStatement(sql.columns(table.name)).use { ps ->
         ps.executeQuery().use { results ->
           while (results.next()) {

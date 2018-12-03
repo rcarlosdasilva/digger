@@ -14,7 +14,7 @@ enum class SupportDb(val driver: String, val sql: Sql) {
  * 命名风格
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-enum class NameStyle {
+enum class NamingStyle {
   /**
    * 小写驼峰
    */
@@ -30,13 +30,16 @@ enum class NameStyle {
   /**
    *  中划线
    */
-  STRIKE_CASE
+  KEBAB_CASE
 }
 
 /**
  * 支持的生成代码语言
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-enum class Language(val extension: String) {
-  JAVA(".java"), KOTLIN(".kt"), XML(".xml")
+enum class Language(val extension: String, val mavenRoot: String) {
+  UNASSIGNED("", ""),
+  JAVA(".java", "src/main/java"),
+  KOTLIN(".kt", "src/main/kotlin"),
+  XML(".xml", "src/main/resources")
 }

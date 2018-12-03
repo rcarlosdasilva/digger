@@ -1,8 +1,10 @@
 package io.github.rcarlosdasilva.digger.cogen.core
 
 import io.github.rcarlosdasilva.digger.cogen.Language
+import io.github.rcarlosdasilva.digger.cogen.NamingStyle
 import io.github.rcarlosdasilva.digger.cogen.SupportDb
 import io.github.rcarlosdasilva.digger.cogen.convert.MySqlTypeConverter
+import io.github.rcarlosdasilva.digger.core.misc.Pair
 
 /**
  * 主配置
@@ -94,39 +96,51 @@ data class Database(
 
 /**
  * 表配置
- * @property name String 准确表名，或表名前缀
- * @property isPrefix Boolean 是否匹配值，默认false
+ * @property name String 准确表名，或表名前缀（加 * 号匹配）
  */
-data class Table @JvmOverloads constructor(val name: String, val isPrefix: Boolean = false) {
+data class Table constructor(val name: String) {
   /**
-   * 仅在[isPrefix]=true时有效，在指定的表匹配范围内，排除哪些表。指定表名可以是表全名，也可以是不包含匹配部分的表名
+   * 在指定的表匹配范围内，排除哪些表。指定表名可以是表全名，也可以是不包含匹配部分的表名，与[includes]互斥，优先采用
    *
    * 例如：表sys_user、sys_role，excludes加入"user"或"sys_user"字符串，则会忽略掉sys_user表的代码生成
    */
   var excludes: List<String>? = null
   /**
+   *  与[excludes]规则类似，指定只包含哪些表，与[excludes]互斥
+   */
+  var includes: List<String>? = null
+  /**
    * 本表中需要忽略掉的字段，字段名可以是全名，也可以是 * 号匹配，例如 flag_* 可匹配 flag_deleted 和 flag_disabled
    */
   var ignoreColumns: List<String>? = null
+  /**
+   * 表名命名风格转换，默认：表名转为大写开头驼峰命名的类名
+   */
+  var tableNaming: NamingStyle = NamingStyle.UPPER_CAMEL
+  /**
+   * 字段名命名风格转换，默认：表名转为小写开头驼峰命名的类名
+   */
+  var columnNaming: NamingStyle = NamingStyle.LOWER_CAMEL
+  /**
+   * 表和字段的名称转换到类名和属性名的转换策略
+   */
+  var namingStrategies: Map<String, String>? = null
 }
 
 /**
  * 代码配置
  * @property template String 模板文件名
+ * @property packageName String 包名
  */
-data class Code constructor(val template: String) {
+data class Code constructor(val template: String, val packageName: String) {
   /**
    * 模块，用于项目有子模块的情况
    */
   var module: String = ""
   /**
-   * 包名
-   */
-  var packageName = ""
-  /**
    * 包下文件使用语言
    */
-  var lang: Language? = null
+  var lang = Language.UNASSIGNED
   /**
    * 生成文件前缀
    */
@@ -144,11 +158,20 @@ data class Code constructor(val template: String) {
    */
   var implements: List<Class<*>>? = null
   /**
-   * 生成Getter方法
+   * 文件需要加的注解
    */
-  var isGetter = false
+  var annotations: List<Annotation<*>>? = null
   /**
-   * 生成Setter方法
+   * 生成Getter Setter方法
    */
-  var isSetter = false
+  var isGetterSetter = false
+
+  /**
+   * 注解信息
+   * @property type Class<T> 注解类
+   * @property properties List<Pair<String, Any>>? 注解参数
+   */
+  data class Annotation<T>(val type: Class<T>) {
+    var properties: List<Pair<String, Any>>? = null
+  }
 }
