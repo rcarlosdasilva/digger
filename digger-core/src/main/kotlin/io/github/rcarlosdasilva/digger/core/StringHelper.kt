@@ -1,7 +1,6 @@
 package io.github.rcarlosdasilva.digger.core
 
 import com.google.common.base.Ascii
-import java.util.*
 
 /**
  * String Helper
@@ -25,23 +24,10 @@ class StringHelper private constructor() {
 
   companion object {
     private val INTERNAL = StringHelper()
-    private val RANDOM = Random()
 
     private const val DELIMITER_START = '{'
     private const val DELIMITER_STR = "{}"
     private const val ESCAPE_CHAR = '\\'
-
-
-    const val NUMBERS = "0123456789"
-    const val NUMBERS_WITHOUT_ZERO = "123456789"
-
-    const val LETTERS_LOWER_CASE = "abcdefghijklmnopqrstuvwxyz"
-    const val LETTERS_UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    const val LETTERS = LETTERS_LOWER_CASE + LETTERS_UPPER_CASE
-
-    const val NUMBERS_AND_LETTERS = NUMBERS + LETTERS
-    const val NUMBERS_AND_LETTERS_LOWER_CASE = NUMBERS + LETTERS_LOWER_CASE
-    const val NUMBERS_AND_LETTERS_UPPER_CASE = NUMBERS + LETTERS_UPPER_CASE
 
     /**
      * 如果第一个参数为null，返回default。否则返回第一个参数
@@ -390,39 +376,6 @@ class StringHelper private constructor() {
         source.substring(start, end)
       else
         source
-    }
-
-    /**
-     * 生成随机字符串
-     * ```
-     * StringHelper.random(10);
-     * StringHelper.random(10, StringHelper.NUMBERS);
-     * ```
-     * 预置候选字符：
-     * - [StringHelper.NUMBERS]
-     * - [StringHelper.NUMBERS_WITHOUT_ZERO]
-     * - [StringHelper.LETTERS_LOWER_CASE]
-     * - [StringHelper.LETTERS_UPPER_CASE]
-     * - [StringHelper.LETTERS]
-     * - [StringHelper.NUMBERS_AND_LETTERS]
-     * - [StringHelper.NUMBERS_AND_LETTERS_LOWER_CASE]
-     * - [StringHelper.NUMBERS_AND_LETTERS_UPPER_CASE]
-     * @param length Int 生成字符串长度
-     * @param chars String 随机字符串的候选字符，默认[StringHelper.NUMBERS_AND_LETTERS]
-     * @return String 随机字符串
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun random(length: Int, chars: String = NUMBERS_AND_LETTERS): String {
-      if (length <= 0 || chars.isEmpty()) return ""
-
-      val cs = CharArray(length)
-      val size = chars.length
-      for (i in 0 until length) {
-        cs[i] = chars[RANDOM.nextInt(size)]
-      }
-
-      return String(cs)
     }
 
     /**
@@ -1010,5 +963,22 @@ class StringHelper private constructor() {
       return source.replace(looking4, concat(prefix, looking4, suffix))
     }
 
+    /**
+     * 将字符串反转
+     * ```
+     * // return "321"
+     * StringHelper.reverse("123")
+     * // return "zyx_cba"
+     * StringHelper.reverse("abc_xyz")
+     * ```
+     * @param source String 字符串
+     * @return String 反转后的字符串
+     */
+    @JvmStatic
+    fun reverse(source: String) =
+        source.toCharArray().let {
+          it.reverse()
+          String(it)
+        }
   }
 }

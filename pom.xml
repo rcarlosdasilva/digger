@@ -49,6 +49,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <guava.version>26.0-jre</guava.version>
+    <freemarker.version>2.3.28</freemarker.version>
+    <mysql.version>5.1.38</mysql.version>
     <mybatis-plus.version>3.0.1</mybatis-plus.version>
     <druid.version>1.1.10</druid.version>
     <c3p0.version>0.9.5.2</c3p0.version>
@@ -140,6 +142,18 @@
         <groupId>com.mchange</groupId>
         <artifactId>c3p0</artifactId>
         <version>${c3p0.version}</version>
+      </dependency>
+
+      <!-- about utils -->
+      <dependency>
+        <groupId>io.github.microutils</groupId>
+        <artifactId>kotlin-logging</artifactId>
+        <version>${kotlin-logging.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
       </dependency>
 
       <!-- modules which is project depends closely -->
@@ -241,6 +255,11 @@
                   <artifactId>spring-boot-configuration-processor</artifactId>
                 </annotationProcessorPath>
               </annotationProcessorPaths>
+              <annotationProcessors>
+                <annotationProcessor>
+                  org.springframework.boot.configurationprocessor.ConfigurationMetadataAnnotationProcessor
+                </annotationProcessor>
+              </annotationProcessors>
             </configuration>
           </execution>
           <execution>
