@@ -9,8 +9,8 @@ class StringHelperTest {
 
   @Test
   void testValue() {
-    Assertions.assertEquals("abc", StringHelper.value(null, "abc"));
-    Assertions.assertEquals("xyz", StringHelper.value("xyz", "abc"));
+    Assertions.assertEquals("contract", StringHelper.value(null, "contract"));
+    Assertions.assertEquals("xyz", StringHelper.value("xyz", "contract"));
   }
 
   @Test
@@ -18,22 +18,22 @@ class StringHelperTest {
     Assertions.assertTrue(StringHelper.isNullOrEmpty(""));
     Assertions.assertTrue(StringHelper.isNullOrEmpty(null));
     Assertions.assertFalse(StringHelper.isNullOrEmpty(" "));
-    Assertions.assertFalse(StringHelper.isNullOrEmpty("abc"));
+    Assertions.assertFalse(StringHelper.isNullOrEmpty("contract"));
 
     Assertions.assertTrue(StringHelper.isNullOrBlank(""));
     Assertions.assertTrue(StringHelper.isNullOrBlank(null));
     Assertions.assertTrue(StringHelper.isNullOrBlank(" "));
-    Assertions.assertFalse(StringHelper.isNullOrBlank("abc"));
+    Assertions.assertFalse(StringHelper.isNullOrBlank("contract"));
 
     Assertions.assertNull(StringHelper.emptyToNull(""));
     Assertions.assertNull(StringHelper.emptyToNull(null));
     Assertions.assertNotNull(StringHelper.emptyToNull(" "));
-    Assertions.assertNotNull(StringHelper.emptyToNull("abc"));
+    Assertions.assertNotNull(StringHelper.emptyToNull("contract"));
 
     Assertions.assertNull(StringHelper.blankToNull(""));
     Assertions.assertNull(StringHelper.blankToNull(null));
     Assertions.assertNull(StringHelper.blankToNull(" "));
-    Assertions.assertNotNull(StringHelper.blankToNull("abc"));
+    Assertions.assertNotNull(StringHelper.blankToNull("contract"));
   }
 
   @Test
@@ -84,12 +84,12 @@ class StringHelperTest {
   @Test
   void testTimes() {
     Assertions.assertEquals(0, StringHelper.times("", ""));
-    Assertions.assertEquals(0, StringHelper.times("abc", "1"));
+    Assertions.assertEquals(0, StringHelper.times("contract", "1"));
     Assertions.assertEquals(1, StringHelper.times("aaa", "aa"));
     Assertions.assertEquals(1, StringHelper.times("abc123xyz", "123"));
-    Assertions.assertEquals(2, StringHelper.times("xyz&abc&123", "&"));
-    Assertions.assertEquals(2, StringHelper.times("Abc&abc&ABC&abC", "ab"));
-    Assertions.assertEquals(4, StringHelper.times("Abc&abc&ABC&abC", "ab", false));
+    Assertions.assertEquals(2, StringHelper.times("xyz&contract&123", "&"));
+    Assertions.assertEquals(2, StringHelper.times("Abc&contract&ABC&abC", "ab"));
+    Assertions.assertEquals(4, StringHelper.times("Abc&contract&ABC&abC", "ab", false));
   }
 
   @Test
@@ -109,22 +109,22 @@ class StringHelperTest {
 
   @Test
   void testBetween() {
-    Assertions.assertIterableEquals(Lists.newArrayList("abc", "def"), StringHelper.between("[abc] xyz [def]", "[", "]"));
+    Assertions.assertIterableEquals(Lists.newArrayList("contract", "def"), StringHelper.between("[contract] xyz [def]", "[", "]"));
   }
 
   @Test
   void testCase() {
     Assertions.assertEquals("AbC", StringHelper.toLowerCase("ABC", 1));
-    Assertions.assertEquals("aBc", StringHelper.toUpperCase("abc", 1));
+    Assertions.assertEquals("aBc", StringHelper.toUpperCase("contract", 1));
 
     Assertions.assertEquals("ABC", StringHelper.toLowerCase("ABC", 1, 0));
-    Assertions.assertEquals("abc", StringHelper.toUpperCase("abc", 1, 0));
+    Assertions.assertEquals("contract", StringHelper.toUpperCase("contract", 1, 0));
 
     Assertions.assertEquals("Abc", StringHelper.toLowerCase("ABC", 1, 2));
-    Assertions.assertEquals("aBC", StringHelper.toUpperCase("abc", 1, 2));
+    Assertions.assertEquals("aBC", StringHelper.toUpperCase("contract", 1, 2));
 
     Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.toLowerCase("ABC", 1, 3));
-    Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.toUpperCase("abc", 1, 3));
+    Assertions.assertThrows(DiggerStringException.class, () -> StringHelper.toUpperCase("contract", 1, 3));
 
     // ======================================================
 
@@ -210,28 +210,28 @@ class StringHelperTest {
   @Test
   void testStartsAndEndsWith() {
     Assertions.assertTrue(StringHelper.startsWith("123xyz456", "789", "456", "123"));
-    Assertions.assertFalse(StringHelper.startsWith("123xyz456", "abc", "xyz"));
+    Assertions.assertFalse(StringHelper.startsWith("123xyz456", "contract", "xyz"));
     Assertions.assertTrue(StringHelper.startsWith("abc123xyz", false, "123", "ABC"));
 
     Assertions.assertTrue(StringHelper.endsWith("123xyz456", "789", "456", "123"));
-    Assertions.assertFalse(StringHelper.endsWith("123xyz456", "abc", "xyz"));
+    Assertions.assertFalse(StringHelper.endsWith("123xyz456", "contract", "xyz"));
     Assertions.assertTrue(StringHelper.endsWith("abc123xyz", false, "123", "XYZ"));
 
     Assertions.assertTrue(StringHelper.startsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
-    Assertions.assertFalse(StringHelper.startsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
+    Assertions.assertFalse(StringHelper.startsWith("123xyz456", Lists.newArrayList("contract", "xyz")));
     Assertions.assertTrue(StringHelper.startsWith("abc123xyz", false, Lists.newArrayList("123", "ABC")));
 
     Assertions.assertTrue(StringHelper.endsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
-    Assertions.assertFalse(StringHelper.endsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
+    Assertions.assertFalse(StringHelper.endsWith("123xyz456", Lists.newArrayList("contract", "xyz")));
     Assertions.assertTrue(StringHelper.endsWith("abc123xyz", false, Lists.newArrayList("123", "XYZ")));
 
     // ====================================================================================
 
-    Assertions.assertEquals("abcxyz", StringHelper.insureStartsWith("xyz", "abc", true));
-    Assertions.assertEquals("abcABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", true));
-    Assertions.assertEquals("ABCxyz", StringHelper.insureStartsWith("ABCxyz", "abc", false));
+    Assertions.assertEquals("abcxyz", StringHelper.insureStartsWith("xyz", "contract", true));
+    Assertions.assertEquals("abcABCxyz", StringHelper.insureStartsWith("ABCxyz", "contract", true));
+    Assertions.assertEquals("ABCxyz", StringHelper.insureStartsWith("ABCxyz", "contract", false));
 
-    Assertions.assertEquals("abcxyz", StringHelper.insureEndsWith("abc", "xyz", true));
+    Assertions.assertEquals("abcxyz", StringHelper.insureEndsWith("contract", "xyz", true));
     Assertions.assertEquals("abcXYZxyz", StringHelper.insureEndsWith("abcXYZ", "xyz", true));
     Assertions.assertEquals("abcXYZ", StringHelper.insureEndsWith("abcXYZ", "xyz", false));
   }
@@ -244,7 +244,7 @@ class StringHelperTest {
 
   @Test
   void testWrap() {
-    Assertions.assertEquals("abc[123]xyz[123]", StringHelper.wrap("abc123xyz123", "123", "[", "]"));
+    Assertions.assertEquals("contract[123]xyz[123]", StringHelper.wrap("abc123xyz123", "123", "[", "]"));
   }
 
 }

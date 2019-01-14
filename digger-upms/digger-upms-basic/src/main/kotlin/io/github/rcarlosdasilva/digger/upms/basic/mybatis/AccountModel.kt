@@ -1,10 +1,9 @@
 package io.github.rcarlosdasilva.digger.upms.basic.mybatis
 
 import com.baomidou.mybatisplus.annotation.TableName
-import io.github.rcarlosdasilva.digger.repository.starter.support.BusinessModel
+import io.github.rcarlosdasilva.digger.repository.support.model.BusinessModel
 import io.github.rcarlosdasilva.digger.upms.basic.AccountType
 import io.github.rcarlosdasilva.digger.upms.basic.Sex
-import io.github.rcarlosdasilva.digger.upms.basic.model.Privilege
 import java.util.*
 
 @TableName("upms_account")

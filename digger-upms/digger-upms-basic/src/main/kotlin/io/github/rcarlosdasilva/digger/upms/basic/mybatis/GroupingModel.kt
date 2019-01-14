@@ -1,7 +1,7 @@
 package io.github.rcarlosdasilva.digger.upms.basic.mybatis
 
 import com.baomidou.mybatisplus.annotation.TableName
-import io.github.rcarlosdasilva.digger.repository.starter.support.BusinessModel
+import io.github.rcarlosdasilva.digger.repository.support.model.BusinessModel
 
 @TableName("upms_grouping")
 class GroupingModel : BusinessModel<GroupingModel>() {

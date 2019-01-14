@@ -10,7 +10,7 @@ import java.util.*
 /**
  * replace/rewrite mybatis-plus properties class
  */
-@ConfigurationProperties("digger.repository")
+@ConfigurationProperties("digger.repository.mybatis")
 class MybatisProperties {
 
   /**

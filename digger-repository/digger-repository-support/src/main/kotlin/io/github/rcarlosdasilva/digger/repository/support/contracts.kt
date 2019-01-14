@@ -1,28 +1,34 @@
-package io.github.rcarlosdasilva.digger.repository.starter
+package io.github.rcarlosdasilva.digger.repository.support
 
-enum class Framework {
-
+/**
+ * 持久层框架
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
+enum class RepositoryFrameworks {
   /**
-   * 基于MyBatis
+   * 基于MyBatis（MyBatis Plus）
    */
   MYBATIS,
   /**
-   * 基于Hibernate
+   * 基于Hibernate（暂时不支持）
    */
   HIBERNATE
-
 }
 
+/**
+ * 支持的数据库类型
+ * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
+ */
 enum class DBType {
   MYSQL, ORACLE, SQL_SERVER, POSTGRESQL
 }
 
+
 /**
  * 支持的连接池类型
- *
  * @author [Dean Zhao](mailto:rcarlosdasilva@qq.com)
  */
-enum class ConnectionPoolType {
+enum class ConnectionPools {
   /**
    * 不使用连接池
    */
@@ -42,5 +48,5 @@ enum class ConnectionPoolType {
   /**
    * HikariCP
    */
-  HIKARI;
+  HIKARI
 }

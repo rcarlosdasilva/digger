@@ -6,7 +6,7 @@
 
   <groupId>io.github.rcarlosdasilva</groupId>
   <artifactId>digger</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <packaging>pom</packaging>
   <description>Digger - 脚手架</description>
 
@@ -44,12 +44,14 @@
   <properties>
     <java.version>1.8</java.version>
     <kotlin.version>1.2.61</kotlin.version>
-    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+    <!--<kotlin.compiler.incremental>true</kotlin.compiler.incremental>-->
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <guava.version>26.0-jre</guava.version>
     <mybatis-plus.version>3.0.1</mybatis-plus.version>
+    <druid.version>1.1.10</druid.version>
+    <c3p0.version>0.9.5.2</c3p0.version>
 
     <kotlin-logging.version>1.4.9</kotlin-logging.version>
   </properties>
@@ -59,20 +61,23 @@
       <id>aliyun</id>
       <name>Aliyun</name>
       <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
       <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
+        <enabled>false</enabled>
       </snapshots>
-      <id>sonatype</id>
-      <name>sonatype snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
+    <!--<repository>-->
+    <!--<releases>-->
+    <!--<enabled>false</enabled>-->
+    <!--</releases>-->
+    <!--<snapshots>-->
+    <!--<enabled>true</enabled>-->
+    <!--<updatePolicy>always</updatePolicy>-->
+    <!--<checksumPolicy>fail</checksumPolicy>-->
+    <!--</snapshots>-->
+    <!--<id>sonatype</id>-->
+    <!--<name>sonatype snapshots</name>-->
+    <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+    <!--</repository>-->
   </repositories>
 
   <dependencyManagement>
@@ -83,6 +88,13 @@
         <version>Finchley.SR1</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <!-- about kotlin plugins -->
+      <dependency>
+        <groupId>io.github.microutils</groupId>
+        <artifactId>kotlin-logging</artifactId>
+        <version>${kotlin-logging.version}</version>
       </dependency>
 
       <!-- about MyBatis -->
@@ -118,31 +130,43 @@
         <version>${mybatis-plus.version}</version>
       </dependency>
 
+      <!-- about connection pool -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>${druid.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.mchange</groupId>
+        <artifactId>c3p0</artifactId>
+        <version>${c3p0.version}</version>
+      </dependency>
+
       <!-- modules which is project depends closely -->
       <dependency>
         <groupId>io.github.rcarlosdasilva</groupId>
         <artifactId>digger-common</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </dependency>
       <dependency>
         <groupId>io.github.rcarlosdasilva</groupId>
         <artifactId>digger-core</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </dependency>
       <dependency>
         <groupId>io.github.rcarlosdasilva</groupId>
         <artifactId>digger-config</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </dependency>
       <dependency>
         <groupId>io.github.rcarlosdasilva</groupId>
         <artifactId>digger-registry</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </dependency>
       <dependency>
         <groupId>io.github.rcarlosdasilva</groupId>
         <artifactId>digger-repository-spring-boot-starter</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -166,33 +190,110 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- 必备 -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-
     <!-- 单元测试 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <configuration>
+          <jvmTarget>1.8</jvmTarget>
+          <compilerPlugins>
+            <plugin>spring</plugin>
+          </compilerPlugins>
+        </configuration>
+        <executions>
+          <execution>
+            <id>kapt</id>
+            <goals>
+              <goal>kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-configuration-processor</artifactId>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-kapt</id>
+            <goals>
+              <goal>test-kapt</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+              </sourceDirs>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-configuration-processor</artifactId>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-compile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
+          <proc>none</proc>
           <source>${java.version}</source>
           <target>${java.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
@@ -221,57 +322,6 @@
             <goals>
               <goal>testCompile</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-maven-plugin</artifactId>
-        <configuration>
-          <jvmTarget>1.8</jvmTarget>
-        </configuration>
-        <executions>
-          <execution>
-            <id>kapt</id>
-            <goals>
-              <goal>kapt</goal>
-            </goals>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-              </sourceDirs>
-              <annotationProcessors>
-                <annotationProcessor>org.springframework.boot.configurationprocessor.ConfigurationMetadataAnnotationProcessor</annotationProcessor>
-              </annotationProcessors>
-            </configuration>
-          </execution>
-          <execution>
-            <id>compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>kapt</goal>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
-              </sourceDirs>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-compile</id>
-            <phase>test-compile</phase>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/test/java</sourceDir>
-              </sourceDirs>
-            </configuration>
           </execution>
         </executions>
       </plugin>

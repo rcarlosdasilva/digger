@@ -1,7 +1,7 @@
 package io.github.rcarlosdasilva.digger.upms.basic.mybatis
 
 import com.baomidou.mybatisplus.annotation.TableName
-import io.github.rcarlosdasilva.digger.repository.starter.support.BasicModel
+import io.github.rcarlosdasilva.digger.repository.support.model.BasicModel
 import kotlin.properties.Delegates
 
 @TableName("upms_association_account_grouping")

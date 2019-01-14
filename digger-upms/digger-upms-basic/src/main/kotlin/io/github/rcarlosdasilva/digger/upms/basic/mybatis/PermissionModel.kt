@@ -1,7 +1,7 @@
 package io.github.rcarlosdasilva.digger.upms.basic.mybatis
 
 import com.baomidou.mybatisplus.annotation.TableName
-import io.github.rcarlosdasilva.digger.repository.starter.support.SystemModel
+import io.github.rcarlosdasilva.digger.repository.support.model.SystemModel
 import io.github.rcarlosdasilva.digger.upms.basic.PermissionType
 
 @TableName("upms_permission")

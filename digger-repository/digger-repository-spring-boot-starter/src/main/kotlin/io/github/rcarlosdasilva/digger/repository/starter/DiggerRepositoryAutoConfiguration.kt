@@ -11,6 +11,9 @@ import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import com.zaxxer.hikari.HikariDataSource
+import io.github.rcarlosdasilva.digger.common.exception.DiggerRuntimeException
+import io.github.rcarlosdasilva.digger.repository.support.ConnectionPools
+import io.github.rcarlosdasilva.digger.repository.support.RepositoryFrameworks
 import mu.KotlinLogging
 import org.apache.commons.dbcp2.BasicDataSource
 import org.apache.ibatis.annotations.Mapper
@@ -34,6 +37,7 @@ import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
 /**
@@ -43,20 +47,36 @@ import javax.sql.DataSource
  */
 @Configuration
 @ConditionalOnClass(value = [DataSource::class])
+//@ConditionalOnBean(value = [DataSourceProperties::class, DiggerRepositoryProperties::class])
 @EnableTransactionManagement
 @AutoConfigureBefore(value = [DataSourceAutoConfiguration::class])
 @EnableConfigurationProperties(value = [DataSourceProperties::class, DiggerRepositoryProperties::class])
-open class DiggerRepositoryAutoConfiguration @Autowired constructor(
-    private val defaultResourceLoader: DefaultResourceLoader,
-    private val dataSourceProperties: DataSourceProperties,
-    private val diggerRepositoryProperties: DiggerRepositoryProperties,
-    @Autowired(required = false) private val metaObjectHandler: MetaObjectHandler? = null,
-    @Autowired(required = false) private val keyGenerator: IKeyGenerator? = null,
-    @Autowired(required = false) private val sqlInjector: ISqlInjector? = null
-) {
+open class DiggerRepositoryAutoConfiguration {
 
   private val logger = KotlinLogging.logger {}
+
+  @Autowired
+  lateinit var defaultResourceLoader: DefaultResourceLoader
+  @Autowired
+  lateinit var dataSourceProperties: DataSourceProperties
+  @Autowired
+  lateinit var diggerRepositoryProperties: DiggerRepositoryProperties
+  @Autowired(required = false)
+  var metaObjectHandler: MetaObjectHandler? = null
+  @Autowired(required = false)
+  var keyGenerator: IKeyGenerator? = null
+  @Autowired(required = false)
+  var sqlInjector: ISqlInjector? = null
+
   private val resourceResolver = PathMatchingResourcePatternResolver()
+  private lateinit var xx: String
+
+  @PostConstruct
+  open fun assert() {
+    if (!this::diggerRepositoryProperties.isInitialized) {
+      throw DiggerRuntimeException("未找到有效的digger-repository配置属性")
+    }
+  }
 
   @Bean
   @ConditionalOnMissingBean
@@ -77,7 +97,7 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
 
   @Bean
   @ConditionalOnMissingBean
-  open fun sqlSessionFactory(dataSource: DataSource): SqlSessionFactory = if (diggerRepositoryProperties.framework == Framework.MYBATIS) {
+  open fun sqlSessionFactory(dataSource: DataSource): SqlSessionFactory = if (diggerRepositoryProperties.framework == RepositoryFrameworks.MYBATIS) {
     mybatisSessionFactory(dataSource)
   } else {
     hibernateSessionFactory(dataSource)
@@ -187,10 +207,10 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
 
   private fun configureDataSource(ds: DataSource) {
     when (diggerRepositoryProperties.pool) {
-      ConnectionPoolType.DRUID -> configureDruidDataSource(ds)
-      ConnectionPoolType.C3P0 -> configureC3p0DataSource(ds)
-      ConnectionPoolType.DBCP -> configureDbcpDataSource(ds)
-      ConnectionPoolType.HIKARI -> configureHikariDataSource(ds)
+      ConnectionPools.DRUID -> configureDruidDataSource(ds)
+      ConnectionPools.C3P0 -> configureC3p0DataSource(ds)
+      ConnectionPools.DBCP -> configureDbcpDataSource(ds)
+      ConnectionPools.HIKARI -> configureHikariDataSource(ds)
       else -> {
         // do nothing when not use pool
       }
@@ -336,12 +356,12 @@ open class DiggerRepositoryAutoConfiguration @Autowired constructor(
   }
 
   companion object {
-    val poolDrivers = mapOf(
-        Pair(ConnectionPoolType.NONE, DriverManagerDataSource::class.java),
-        Pair(ConnectionPoolType.DRUID, DruidDataSource::class.java),
-        Pair(ConnectionPoolType.C3P0, ComboPooledDataSource::class.java),
-        Pair(ConnectionPoolType.DBCP, BasicDataSource::class.java),
-        Pair(ConnectionPoolType.HIKARI, HikariDataSource::class.java)
+    private val poolDrivers = mapOf(
+        Pair(ConnectionPools.NONE, DriverManagerDataSource::class.java),
+        Pair(ConnectionPools.DRUID, DruidDataSource::class.java),
+        Pair(ConnectionPools.C3P0, ComboPooledDataSource::class.java),
+        Pair(ConnectionPools.DBCP, BasicDataSource::class.java),
+        Pair(ConnectionPools.HIKARI, HikariDataSource::class.java)
     )
   }
 

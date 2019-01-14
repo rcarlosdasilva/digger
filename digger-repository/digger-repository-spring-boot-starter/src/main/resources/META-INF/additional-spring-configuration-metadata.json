@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "digger.repository",
+      "type": "io.github.rcarlosdasilva.digger.repository.starter.DiggerRepositoryProperties",
+      "sourceType": "io.github.rcarlosdasilva.digger.repository.starter.DiggerRepositoryProperties"
+    },
+    {
+      "name": "digger.repository.mybatis",
+      "type": "io.github.rcarlosdasilva.digger.repository.starter.MybatisProperties",
+      "sourceType": "io.github.rcarlosdasilva.digger.repository.starter.MybatisProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "digger.repository.framework",
+      "type": "io.github.rcarlosdasilva.digger.repository.support.RepositoryFrameworks",
+      "sourceType": "io.github.rcarlosdasilva.digger.repository.support.RepositoryFrameworks",
+      "description": "持久层框架，暂时只实现MyBatis"
+    }
+  ]
+}

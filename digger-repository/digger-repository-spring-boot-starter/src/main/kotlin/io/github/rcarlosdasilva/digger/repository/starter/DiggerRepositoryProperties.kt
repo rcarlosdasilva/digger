@@ -1,32 +1,33 @@
 package io.github.rcarlosdasilva.digger.repository.starter
 
+import io.github.rcarlosdasilva.digger.repository.support.ConnectionPools
+import io.github.rcarlosdasilva.digger.repository.support.DBType
+import io.github.rcarlosdasilva.digger.repository.support.RepositoryFrameworks
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 import java.util.*
 
-@ConfigurationProperties(prefix = "digger.repository.rdb")
+@ConfigurationProperties("digger.repository")
 class DiggerRepositoryProperties {
 
   /**
    * 持久层框架，暂时只实现MyBatis
    */
-  val framework: Framework = Framework.MYBATIS
+  var framework = RepositoryFrameworks.MYBATIS
   /**
    * 使用什么数据库，暂时只实现MySQL
    */
-  val db: DBType = DBType.MYSQL
+  var db = DBType.MYSQL
 
   /**
    * 使用的连接池库 - [NONE, DRUID, C3P0, DBCP, HIKARI]
    */
-  lateinit var pool: ConnectionPoolType
-  /**
-   * 数据库字段为tiny_int时是否映射为Java的Boolean
-   */
-  var tinyintToBoolean = true
+  var pool = ConnectionPools.DRUID
   /**
    * MyBatis (MyBatis Plus)配置
    */
-  val mybatis = MybatisProperties()
+  @NestedConfigurationProperty
+  var mybatis = MybatisProperties()
 
   /**
    * Druid 相关配置
